@@ -1,0 +1,5 @@
+#
+# Low level networking (ethernet card)
+#
+$network        +netscript
+

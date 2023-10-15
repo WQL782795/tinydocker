@@ -1,0 +1,37 @@
+#!/bin/bash
+[ ! -x /bin/ip ] && exit 0
+[ ! -x /sbin/netscript ] && exit 0
+
+qt () { "$@" >/dev/null 2>&1 ; }
+vb () { "$@" ; }
+source () { . $1 ; }
+basename () { echo "${1##*/}"; }
+
+. /etc/netscript/if.conf
+. /etc/netscript/network.conf
+. /etc/netscript/qos.conf
+
+if [ -x /sbin/tc ]; then
+	ip_QoSppp $PPP_IFACE
+	ip_QoS $PPP_IFACE
+fi
+
+IF_NODASH=`echo "$PPP_IFACE" | sed -e 's/\-/_/g'`
+
+eval TXQLEN=\${"${IF_NODASH}"_TXQLEN:-""}
+[ -z "$TXQLEN" ] && eval TXQLEN=\${ppp_TXQLEN:-""}
+[ -n "$TXQLEN" ] \
+	&& ip link set dev $PPP_IFACE txqlen $TXQLEN
+
+
+# Set up routes and ARP etc
+qt () { "$@" >/dev/null 2>&1 ; }
+if qt type ${PPP_IFACE}_network_ppp ; then
+        ${PPP_IFACE}_network_ppp $PPP_IFACE
+fi
+
+eval PPP_CHAIN_AUTO=\"\${"${IF_NODASH}"_PPP_CHAIN_AUTO:-""}\"
+for IF in $PPP_CHAIN_AUTO; do
+    if_up $IF
+done
+

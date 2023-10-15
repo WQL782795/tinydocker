@@ -1,0 +1,29 @@
+#!/bin/bash
+[ ! -x /bin/ip ] && exit 0
+[ ! -x /sbin/netscript ] && exit 0
+
+qt () { "$@" >/dev/null 2>&1 ; }
+vb () { "$@" ; }
+source () { . $1 ; }
+basename () { echo "${1##*/}"; }
+
+. /etc/netscript/if.conf
+. /etc/netscript/network.conf
+. /etc/netscript/qos.conf
+
+REV_PPP_CHAIN=''
+IF_NODASH=`echo "$PPP_IFACE" | sed -e 's/\-/_/g'`
+eval PPP_CHAIN=\"\${"${IF_NODASH}"_PPP_CHAIN:-""}\"
+eval PPP_CHAIN_AUTO=\"\${"${IF_NODASH}"_PPP_CHAIN_AUTO:-""}\"
+PPP_CHAIN="$PPP_CHAIN_AUTO $PPP_CHAIN" 
+for IF in $PPP_CHAIN; do
+	REV_PPP_CHAIN="$REV_PPP_CHAIN $IF"
+done
+unset IF
+for IF in $REV_PPP_CHAIN; do
+	if_down $IF
+done
+unset IF
+
+[ ! -x /sbin/tc ] && exit 0
+ip_QoSclear $PPP_IFACE

@@ -1,0 +1,44 @@
+#! /bin/sh -e
+### BEGIN INIT INFO
+# Provides:          netscript
+# Required-Start:    mountkernfs $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     S
+# Default-Stop:      0 6
+# Short-Description: Raise network interfaces, and setup iptables.
+# Description: Raise network interfaces, starting any required networking 
+#              daemons like pppd, DHCP client or openvpn, and setup iptables.
+### END INIT INFO
+#
+# netscript	script to fire up netscript network configuration system
+#
+#		Written by Miquel van Smoorenburg <miquels@cistron.nl>.
+#		Modified for Debian GNU/Linux
+#		by Ian Murdock <imurdock@gnu.ai.mit.edu>.
+#		Modified from /etc/init.d/skeleton
+#		by Matthew Grant <grantma@anathoth.gen.nz>
+#
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=/sbin/netscript
+NAME=netscript
+DESC="netscript"
+
+test -f $DAEMON || exit 0
+
+. /lib/lsb/init-functions
+
+# The /sbin/netscript command complies with Debian Policy so just do this:
+# NB the following can make lintian happy
+case "$1" in
+	start|reload|force-reload|restart)
+		$DAEMON $*
+		;;
+	stop)
+		$DAEMON $*
+		;;
+	*)
+		$DAEMON $*
+		;;
+esac
+
+

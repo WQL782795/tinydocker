@@ -1,0 +1,17 @@
+60fc8dacabc1b5e02b49953223ce53af  lib/systemd/system/netscript.service
+155f43d2527bb4faa3cce99fbac02f45  lib/systemd/system/netscript@.service
+ce29fbf39785a2f4a331f764ca8de0d1  lib/udev/netscript-hotplug
+75cb5792d9f652f4a1abad987e93128b  lib/udev/rules.d/85-netscript.rules
+b7970331c31013a7b29b2649ab072daf  sbin/netscript
+d2bae0292f6403ce6678175cbe8d5646  usr/share/doc/netscript-2.4/2.4.x-kernel.config.gz
+a13ba98e9133b167d5fc6e05f30565ce  usr/share/doc/netscript-2.4/BUGS
+16009c9414b7928ce0999076229c350f  usr/share/doc/netscript-2.4/NEWS.Debian.gz
+cc4968c1a72675fb866b172f34bbc759  usr/share/doc/netscript-2.4/README
+d713657f7945901553ddfa0dbd0ba4d9  usr/share/doc/netscript-2.4/README.Debian.gz
+0b231db1ed9b12c6bfba582c12013650  usr/share/doc/netscript-2.4/README.etc
+50d3f36b375b9e663de2243b21ff9f77  usr/share/doc/netscript-2.4/TODO
+12941ef53872efc6af8757e9b3bc633f  usr/share/doc/netscript-2.4/changelog.gz
+e0724eaec95edb3a81ce47fcbb02914b  usr/share/doc/netscript-2.4/copyright
+960f8806af0c58ea6d68c7cfd9c9de9d  usr/share/lintian/overrides/netscript-2.4
+9dc85305dc6d204bb5e8e41e09410111  usr/share/man/man5/netscript-2.4.conf.5.gz
+7c4718b5f6b3c6fd7fe705a9f9942ed2  usr/share/man/man8/netscript.8.gz

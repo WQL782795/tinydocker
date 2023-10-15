@@ -1,0 +1,11 @@
+/etc/init.d/netscript
+/etc/insserv.conf.d/netscript
+/etc/netscript/README
+/etc/netscript/if.conf
+/etc/netscript/ipfilter.conf
+/etc/netscript/network.conf
+/etc/netscript/network.conf.d/00default-eth0-dhcp.conf
+/etc/netscript/qos.conf
+/etc/netscript/wep.conf
+/etc/ppp/ip-down.d/netscript
+/etc/ppp/ip-up.d/netscript

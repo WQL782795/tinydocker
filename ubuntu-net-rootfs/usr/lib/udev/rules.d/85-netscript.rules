@@ -1,0 +1,10 @@
+# This file causes network devices to be brought up or down as a result
+# of hardware being added or removed, including that which isn't ordinarily
+# removable.
+# See udev(7) for syntax.
+# Allow rfkill for users in the netdev group
+KERNEL=="rfkill", MODE="0664", GROUP="netdev"
+
+# Handle allow-hotplug interfaces
+SUBSYSTEM=="net", ACTION=="add|remove", RUN+="netscript-hotplug"
+

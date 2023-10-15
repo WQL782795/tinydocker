@@ -1,0 +1,35 @@
+Netscript Configuration files
+
+The files found in this directory are for an alternative network configuration 
+and IP filtering system for kernel 2.4+ based on /bin/sh. This system is 
+designed for use with a routing daemon like zebra. This system also uses 
+iproute
+
+Most of what you should really have to edit is found in network.conf
+
+The files and their uses are as follows:
+
+network.conf:	general network, bridging, QoS and some ptables configuration 
+		items. Comments in here contain the current documentation 
+		on the configuration items, which can even handle pppd, 
+		wanconfig, and ciped.
+ipfilter.conf:	The shell script sused to set up the iptables 
+		filtering/masquerading etc.
+if.conf		Lower level functions for configuring interfaces.
+qos.conf	Functions to configure Quality of Service using /sbin/tc
+
+You should be able to do most things by editing the settings in network.conf.
+See below for more details on this reccomended editing policy.
+
+You will have to configure the firewall using the iptables commands directly.
+
+Don't forget to save the configurations using the 
+'netscript ipfilter|ip6filter save' commands! Unlike the last version, 
+the firewalling and filtering is no longer configured from network.conf.  
+This has been done as stateful filtering has helped obviate the need for 
+great complexity in the firewall scripts, and  more flexibility is possible. 
+
+It is a good idea to get down and get dirty with iptables and learn it, 
+which you will appreciate if you are running this to build a network - you 
+should understand things fully, or else you will get things wrong.
+

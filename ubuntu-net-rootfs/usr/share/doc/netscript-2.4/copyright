@@ -1,0 +1,26 @@
+This package was debianized by Matthew Grant <grantma@anathoth.gen.nz> on
+Thu, 23 Nov 2000 17:01:55 +1300.
+
+Upstream Authors: Matthew Grant <grantma@anathoth.gen.nz> (send patches here)
+                  David Cinege  <dcinege@psychosis.com>
+
+Copyright:
+
+Copyright          1995-2000    Matthew Grant <grantma@anathoth.gen.nz>
+Portions copyright 1998,1999    David Cinege <dcinege@psychosis.com>
+                   1999-2009    Anthony Towns
+                   2010-2015    Andrew Shadura
+                   2015         Guus Sliepen
+License: GPL-2
+
+ Produced with the support of Plain Communications Ltd, htp://www.plain.co.nz
+ .
+ You are free to distribute and use this software under the terms of
+ the GNU General Public License.
+ .
+ Systemd setup and udev scripts copied and adapted from ifupdown 0.18.6,
+ which is licensed GPL 2+
+ .
+ On Debian systems, the complete text of the GNU General Public
+ License can be found in /usr/share/common-licenses/GPL file.
+

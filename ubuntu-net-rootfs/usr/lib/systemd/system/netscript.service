@@ -1,0 +1,25 @@
+[Unit]
+Description=Netscript network interfaces and iptables
+Documentation=man:netscript(8)
+DefaultDependencies=no
+Wants=network.target
+After=local-fs.target network-pre.target apparmor.service systemd-sysctl.service systemd-modules-load.service
+#If you want to run openvswitch for software switching underneath 
+# primary networking
+#After=openvswitch-switch.service
+Before=network.target shutdown.target network-online.target
+Conflicts=shutdown.target
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/netscript/network.conf
+ExecStartPre=-/bin/sh -c '[ -n "$IF_AUTO" ] && udevadm settle'
+ExecStart=/sbin/netscript start
+ExecStop=/sbin/netscript stop
+RemainAfterExit=true
+TimeoutStartSec=5min
+
