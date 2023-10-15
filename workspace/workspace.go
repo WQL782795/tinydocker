@@ -7,83 +7,114 @@ import (
 	"syscall"
 )
 
+// 该文件的作用是：模拟overlay联合文件系统在docker中的使用
+//需要lowerlayer,upperlayer,mnt,work
 const (
-	mntPath        = "/root/mnt"
-	workLayerPath  = "/root/work"
-	writeLayerPath = "/root/wlayer"
-	imagePath      = "ubuntu-base-16.04.6-base-amd64"
-	mntOldPath     = ".old"
+	lowerlayer = "/projects/tinydocker/ubuntu-base-20.04.1-base-amd64"
+	upperlayer = "/projects/tinydocker/upper"
+	mnt        = "/projects/tinydocker/merged"
+	work       = "/projects/tinydocker/work"
+	backup     = ".old"
 )
 
-func workerLayer(containerName string) string {
-	return fmt.Sprintf("%s/%s", workLayerPath, containerName)
+func LowerLayer() string {
+	return fmt.Sprintf("%s", lowerlayer)
 }
 
-func mntLayer(containerName string) string {
-	return fmt.Sprintf("%s/%s", mntPath, containerName)
+func UpperLayer(containerName string) string {
+	return fmt.Sprintf("%s/%s", upperlayer, containerName)
 }
 
-func writeLayer(containerName string) string {
-	return fmt.Sprintf("%s/%s", writeLayerPath, containerName)
+func WorkDir(containerName string) string {
+	return fmt.Sprintf("%s/%s", work, containerName)
 }
 
-func mntOldLayer(containerName string) string {
-	return fmt.Sprintf("%s/%s", mntLayer(containerName), mntOldPath)
+func BackUpDir(containerName string) string {
+	return fmt.Sprintf("%s/%s", MntLayer(containerName), backup)
 }
 
-func SetMntNamespace(containerName string) error {
-	if err := os.MkdirAll(mntLayer(containerName), 0700); err != nil {
+func MntLayer(containerName string) string {
+	return fmt.Sprintf("%s/%s", mnt, containerName)
+}
+
+func DelMnt(containerName string) (err error) {
+	if err = delMnt(MntLayer(containerName)); err != nil {
+		return
+	}
+	if err = delMnt(WorkDir(containerName)); err != nil {
+		return
+	}
+	if err = delMnt(UpperLayer(containerName)); err != nil {
+		return
+	}
+	return
+}
+
+func delMnt(mntPath string) (err error) {
+	if _, err = os.Stat(mntPath); err != nil {
+		fmt.Printf("%s not found", mntPath)
+		return
+	}
+	var stat syscall.Statfs_t
+	if err = syscall.Statfs(mntPath, &stat); err != nil {
+		return
+	}
+	if stat.Type != 61267 {
+		_, err = exec.Command("umount", mntPath).CombinedOutput()
+		if err != nil {
+			return
+		}
+	}
+	//del dir
+	err = os.RemoveAll(mntPath)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func Mnt(containerName string) (err error) {
+	if err = os.MkdirAll(MntLayer(containerName), 0700); err != nil {
 		return fmt.Errorf("mkdir mntlayer fail err=%s", err)
 	}
-	if err := os.MkdirAll(workerLayer(containerName), 0700); err != nil {
-		return fmt.Errorf("mkdir work layer fail err=%s", err)
+	if err = os.MkdirAll(UpperLayer(containerName), 0700); err != nil {
+		return fmt.Errorf("mkdir UpperLayer fail err=%s", err)
 	}
-	if err := os.MkdirAll(writeLayer(containerName), 0700); err != nil {
-		return fmt.Errorf("mkdir write layer fail err=%s", err)
+	if err = os.MkdirAll(WorkDir(containerName), 0700); err != nil {
+		return fmt.Errorf("mkdir WorkDir fail err=%s", err)
 	}
-
-	if err := syscall.Mount("overlay", mntLayer(containerName), "overlay", 0,
+	if _, err = os.Stat(MntLayer(containerName)); err != nil {
+		fmt.Printf("Mnt Dir not found ,%s\n", err)
+		return
+	}
+	if _, err = os.Stat(LowerLayer()); err != nil {
+		fmt.Printf("Lower Dir not found ,%s\n", err)
+		return
+	}
+	if _, err = os.Stat(UpperLayer(containerName)); err != nil {
+		fmt.Printf("up Dir not found ,%s\n", err)
+		return
+	}
+	if _, err = os.Stat(WorkDir(containerName)); err != nil {
+		fmt.Printf("work Dir not found ,%s\n", err)
+		return
+	}
+	if err := syscall.Mount("overlay", MntLayer(containerName), "overlay", 0,
 		fmt.Sprintf("upperdir=%s,lowerdir=%s,workdir=%s",
-			writeLayer(containerName), imagePath, workerLayer(containerName))); err != nil {
+			UpperLayer(containerName), LowerLayer(), WorkDir(containerName))); err != nil {
 		return fmt.Errorf("mount overlay fail err=%s", err)
 	}
-
-	if err := syscall.Mount("", "/", "", syscall.MS_PRIVATE|syscall.MS_REC, ""); err != nil {
+	if err = syscall.Mount("", "/", "", syscall.MS_PRIVATE|syscall.MS_REC, ""); err != nil {
 		return fmt.Errorf("reclare rootfs private fail err=%s", err)
 	}
-
-	if err := syscall.Mount(mntLayer(containerName), mntLayer(containerName), "bind", syscall.MS_BIND|syscall.MS_REC, ""); err != nil {
+	if err := syscall.Mount(MntLayer(containerName), MntLayer(containerName), "bind", syscall.MS_BIND|syscall.MS_REC, ""); err != nil {
 		return fmt.Errorf("mount rootfs in new mnt space fail err=%s", err)
 	}
-	if err := os.MkdirAll(mntOldLayer(containerName), 0700); err != nil {
-		return fmt.Errorf("mkdir mnt old layer fail err=%s", err)
+	if err = os.MkdirAll(BackUpDir(containerName), 0700); err != nil {
+		return fmt.Errorf("mkdir BackUpDir fail err=%s", err)
 	}
-	if err := syscall.PivotRoot(mntLayer(containerName), mntOldLayer(containerName)); err != nil {
+	if err = syscall.PivotRoot(MntLayer(containerName), BackUpDir(containerName)); err != nil {
 		return fmt.Errorf("pivot root  fail err=%s", err)
 	}
-	return nil
-}
-
-func delMntNamespace(path string) error {
-	_, err := exec.Command("umount", path).CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("umount fail path=%s err=%s", path, err)
-	}
-	if err := os.RemoveAll(path); err != nil {
-		return fmt.Errorf("remove dir fail path=%s err=%s", path, err)
-	}
-	return nil
-}
-
-func DelMntNamespace(containerName string) error {
-	if err := delMntNamespace(mntLayer(containerName)); err != nil {
-		return err
-	}
-	if err := delMntNamespace(workerLayer(containerName)); err != nil {
-		return err
-	}
-	if err := delMntNamespace(writeLayer(containerName)); err != nil {
-		return err
-	}
-	return nil
+	return
 }
