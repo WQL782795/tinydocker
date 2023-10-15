@@ -10,7 +10,7 @@ import (
 // 该文件的作用是：模拟overlay联合文件系统在docker中的使用
 //需要lowerlayer,upperlayer,mnt,work
 const (
-	lowerlayer = "/projects/tinydocker/ubuntu-base-20.04.1-base-amd64"
+	lowerlayer = "/projects/tinydocker/ubuntu-net-rootfs"
 	upperlayer = "/projects/tinydocker/upper"
 	mnt        = "/projects/tinydocker/merged"
 	work       = "/projects/tinydocker/work"
